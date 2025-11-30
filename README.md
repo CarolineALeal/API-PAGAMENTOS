@@ -155,7 +155,6 @@ PUT /api/pagamentos/3/status?status=PENDENTE
 
 ## Exclusão lógica
 DELETE /api/pagamentos/1
-```
 
 ------------------------------------------------------------------------
 
