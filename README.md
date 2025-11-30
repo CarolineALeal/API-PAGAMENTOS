@@ -20,11 +20,11 @@ lógica de pagamentos de débitos de pessoas físicas e jurídicas.
 
 ### 1. **Receber um pagamento**
 
-A API recebe um pagamento contendo: - Código do débito\
-- CPF/CNPJ\
+A API recebe um pagamento contendo: - Código do débito
+- CPF/CNPJ
 - Método de pagamento (`boleto`, `pix`, `cartao_credito`,
-`cartao_debito`)\
-- Número do cartão (obrigatório apenas para cartões)\
+`cartao_debito`)
+- Número do cartão (obrigatório apenas para cartões)
 - Valor
 
 Ao salvar, o pagamento inicia com status **PENDENTE_PROCESSAMENTO**.
@@ -35,11 +35,14 @@ Ao salvar, o pagamento inicia com status **PENDENTE_PROCESSAMENTO**.
 
 A API permite alterar o status seguindo as regras:
 
-  Status Atual   Pode mudar para
-  -------------- ---------------------------
-  Pendente       Sucesso / Falha
-  Sucesso        Não pode alterar
-  Falha          Pode voltar para Pendente
+## Status Atual
+
+| Status Atual | Pode Alterar Para        |
+|-------------|---------------------------|
+| Pendente    | Sucesso / Falha           |
+| Sucesso     | Não pode alterar          |
+| Falha       | Pode voltar para Pendente |
+
 
 ------------------------------------------------------------------------
 
@@ -135,6 +138,21 @@ PUT /api/pagamentos/2/status?status=PROCESSADO_FALHA
 
 PUT /api/pagamentos/3/status?status=PENDENTE
 
+### Listar todos os pagamentos
+`GET /api/pagamentos`
+
+### Buscar pagamento por ID
+`GET /api/pagamentos/{id}`
+
+### Filtros
+`GET /api/pagamentos?codigoDebito=1001`
+
+`GET /api/pagamentos?cpfCnpj=12345678901`
+
+`GET /api/pagamentos?status=PENDENTE`
+
+`GET /api/pagamentos?codigoDebito=1001&cpfCnpj=12345678901&status=PENDENTE`
+
 ## Exclusão lógica
 DELETE /api/pagamentos/1
 ```
@@ -143,9 +161,9 @@ DELETE /api/pagamentos/1
 
 ## Acesso ao H2 Console
 
-URL: `/h2-console`\
-Driver: `org.h2.Driver`\
-User: `sa`\
+URL: `/h2-console`
+Driver: `org.h2.Driver`
+User: `sa`
 Password: *(vazio)*
 
 ------------------------------------------------------------------------
