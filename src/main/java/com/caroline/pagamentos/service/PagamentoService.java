@@ -1,10 +1,15 @@
 package com.caroline.pagamentos.service;
 
+import com.caroline.pagamentos.dto.AtualizarStatusRequest;
 import com.caroline.pagamentos.dto.PagamentoRequest;
+import com.caroline.pagamentos.exception.PagamentoNaoEncontradoException;
+import com.caroline.pagamentos.exception.RegraDeNegocioException;
 import com.caroline.pagamentos.model.Pagamento;
 import com.caroline.pagamentos.repository.PagamentoRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import static com.caroline.pagamentos.specification.PagamentoSpecification.*;
 
 
 @Service
@@ -29,32 +34,51 @@ public class PagamentoService {
         return repository.save(pagamento);
     }
 
-    public Pagamento atualizarStatus(Long id, String novoStatus) {
+    public Pagamento atualizarStatus(Long id, AtualizarStatusRequest request) {
+
         Pagamento pagamento = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
+                .orElseThrow(() -> new PagamentoNaoEncontradoException("Pagamento não encontrado"));
 
         String statusAtual = pagamento.getStatus();
+        String novoStatus = request.getStatus();
 
-        if (statusAtual.equals("PENDENTE")) {
-            if (!novoStatus.equals("PROCESSADO_SUCESSO") &&
+        switch (statusAtual) {
+
+            case "PENDENTE":
+                if (!novoStatus.equals("PROCESSADO_SUCESSO") &&
                     !novoStatus.equals("PROCESSADO_FALHA")) {
-                throw new RuntimeException("Status inválido para PAGAMENTO PENDENTE.");
-            }
-        } else if (statusAtual.equals("PROCESSADO_SUCESSO")) {
-            throw new RuntimeException("Pagamento já processado com sucesso não pode ser alterado.");
-        } else if (statusAtual.equals("PROCESSADO_FALHA")) {
-            if (!novoStatus.equals("PENDENTE")) {
-                throw new RuntimeException("Pagamento com falha só pode voltar para PENDENTE.");
-            }
+
+                    throw new RegraDeNegocioException(
+                        "PENDENTE só pode ir para PROCESSADO_SUCESSO ou PROCESSADO_FALHA."
+                    );
+                }
+                break;
+
+            case "PROCESSADO_SUCESSO":
+                throw new RegraDeNegocioException(
+                    "Pagamentos PROCESSADO_SUCESSO não podem ter o status alterado."
+                );
+
+            case "PROCESSADO_FALHA":
+                if (!novoStatus.equals("PENDENTE")) {
+                    throw new RegraDeNegocioException(
+                        "PROCESSADO_FALHA só pode voltar para PENDENTE."
+                    );
+                }
+                break;
+
+            default:
+                throw new RegraDeNegocioException("Status atual inválido: " + statusAtual);
         }
 
         pagamento.setStatus(novoStatus);
         return repository.save(pagamento);
     }
 
+
     public Pagamento buscarPorId(Long id) {
         return repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
+            .orElseThrow(() -> new PagamentoNaoEncontradoException("Pagamento não encontrado"));
     }
 
     public List<Pagamento> listarTodos() {
@@ -63,10 +87,12 @@ public class PagamentoService {
 
     public void excluirPagamento(Long id) {
     Pagamento pagamento = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
+            .orElseThrow(() -> new PagamentoNaoEncontradoException("Pagamento não encontrado"));
 
     if (!pagamento.getStatus().equals("PENDENTE")) {
-        throw new RuntimeException("Só é possível excluir pagamentos com status PENDENTE.");
+        throw new RegraDeNegocioException(
+                "Só é possível excluir pagamentos com status PENDENTE."
+            );
     }
 
     pagamento.setAtivo(false);
@@ -74,17 +100,12 @@ public class PagamentoService {
     }
 
     public List<Pagamento> buscarPagamentos(Integer codigoDebito, String cpfCnpj, String status) {
-    if (codigoDebito != null) {
-        return repository.findByCodigoDebito(codigoDebito);
-    } else if (cpfCnpj != null) {
-        return repository.findByCpfCnpj(cpfCnpj);
-    } else if (status != null) {
-        return repository.findByStatus(status);
-    } else {
-        return repository.findAll();
+        Specification<Pagamento> spec = Specification
+            .where(codigoDebito(codigoDebito))
+            .and(cpfCnpj(cpfCnpj))
+            .and(status(status));
+
+        return repository.findAll(spec);
     }
-}
-
-
 
 }

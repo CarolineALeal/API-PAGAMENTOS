@@ -132,11 +132,13 @@ o campo `ativo` para `false`, sem apagar o registro do banco.
 ```
 
 ## Atualizar status
-PUT /api/pagamentos/1/status?status=PROCESSADO_SUCESSO
+`PUT /api/pagamentos/{id}/status`
 
-PUT /api/pagamentos/2/status?status=PROCESSADO_FALHA
-
-PUT /api/pagamentos/3/status?status=PENDENTE
+```json
+{
+  "status": "PROCESSADO_SUCESSO"
+}
+```
 
 ### Listar todos os pagamentos
 `GET /api/pagamentos`
@@ -151,10 +153,10 @@ PUT /api/pagamentos/3/status?status=PENDENTE
 
 `GET /api/pagamentos?status=PENDENTE`
 
-`GET /api/pagamentos?codigoDebito=1001&cpfCnpj=12345678901&status=PENDENTE`
+`GET /api/pagamentos?codigoDebito=1001&cpfCnpj=12345678901`
 
 ## Exclusão lógica
-DELETE /api/pagamentos/1
+`DELETE /api/pagamentos/1`
 
 ------------------------------------------------------------------------
 

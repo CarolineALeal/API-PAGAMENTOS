@@ -1,5 +1,5 @@
 package com.caroline.pagamentos.controller;
-
+import com.caroline.pagamentos.dto.AtualizarStatusRequest;
 import com.caroline.pagamentos.dto.PagamentoRequest;
 import com.caroline.pagamentos.model.Pagamento;
 import com.caroline.pagamentos.service.PagamentoService;
@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/pagamentos")
@@ -27,10 +26,10 @@ public class PagamentoController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<Pagamento> atualizarStatus(
-        @PathVariable Long id,
-        @RequestParam String status
+            @PathVariable Long id,
+            @Valid @RequestBody AtualizarStatusRequest request
     ) {
-        Pagamento pagamentoAtualizado = service.atualizarStatus(id, status);
+        Pagamento pagamentoAtualizado = service.atualizarStatus(id, request);
         return ResponseEntity.ok(pagamentoAtualizado);
     }
 
@@ -41,9 +40,9 @@ public class PagamentoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> excluirPagamento(@PathVariable Long id) {
+    public ResponseEntity<Void> excluirPagamento(@PathVariable Long id) {
         service.excluirPagamento(id);
-        return ResponseEntity.ok("Pagamento excluído logicamente com sucesso.");
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -54,7 +53,4 @@ public class PagamentoController {
     ) {
         return ResponseEntity.ok(service.buscarPagamentos(codigoDebito, cpfCnpj, status));
     }
-
-
-
 }
