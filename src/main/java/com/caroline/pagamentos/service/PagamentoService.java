@@ -2,6 +2,7 @@ package com.caroline.pagamentos.service;
 
 import com.caroline.pagamentos.dto.AtualizarStatusRequest;
 import com.caroline.pagamentos.dto.PagamentoRequest;
+import com.caroline.pagamentos.enums.StatusPagamento;
 import com.caroline.pagamentos.exception.PagamentoNaoEncontradoException;
 import com.caroline.pagamentos.exception.RegraDeNegocioException;
 import com.caroline.pagamentos.model.Pagamento;
@@ -28,7 +29,7 @@ public class PagamentoService {
         pagamento.setMetodoPagamento(request.getMetodoPagamento());
         pagamento.setNumeroCartao(request.getNumeroCartao());
         pagamento.setValor(request.getValor());
-        pagamento.setStatus("PENDENTE");
+        pagamento.setStatus(StatusPagamento.PENDENTE);
         pagamento.setAtivo(true);
 
         return repository.save(pagamento);
@@ -39,36 +40,10 @@ public class PagamentoService {
         Pagamento pagamento = repository.findById(id)
                 .orElseThrow(() -> new PagamentoNaoEncontradoException("Pagamento não encontrado"));
 
-        String statusAtual = pagamento.getStatus();
-        String novoStatus = request.getStatus();
+        StatusPagamento novoStatus = request.getStatus();
 
-        switch (statusAtual) {
-
-            case "PENDENTE":
-                if (!novoStatus.equals("PROCESSADO_SUCESSO") &&
-                    !novoStatus.equals("PROCESSADO_FALHA")) {
-
-                    throw new RegraDeNegocioException(
-                        "PENDENTE só pode ir para PROCESSADO_SUCESSO ou PROCESSADO_FALHA."
-                    );
-                }
-                break;
-
-            case "PROCESSADO_SUCESSO":
-                throw new RegraDeNegocioException(
-                    "Pagamentos PROCESSADO_SUCESSO não podem ter o status alterado."
-                );
-
-            case "PROCESSADO_FALHA":
-                if (!novoStatus.equals("PENDENTE")) {
-                    throw new RegraDeNegocioException(
-                        "PROCESSADO_FALHA só pode voltar para PENDENTE."
-                    );
-                }
-                break;
-
-            default:
-                throw new RegraDeNegocioException("Status atual inválido: " + statusAtual);
+        if (!pagamento.getStatus().podeIrPara(novoStatus)) {
+            throw new RegraDeNegocioException("Transição de status inválida");
         }
 
         pagamento.setStatus(novoStatus);
@@ -99,11 +74,12 @@ public class PagamentoService {
     repository.save(pagamento);
     }
 
-    public List<Pagamento> buscarPagamentos(Integer codigoDebito, String cpfCnpj, String status) {
+    public List<Pagamento> buscarPagamentos(Integer codigoDebito, String cpfCnpj, StatusPagamento status) {
+
         Specification<Pagamento> spec = Specification
-            .where(codigoDebito(codigoDebito))
-            .and(cpfCnpj(cpfCnpj))
-            .and(status(status));
+                .where(codigoDebito(codigoDebito))
+                .and(cpfCnpj(cpfCnpj))
+                .and(status(status));
 
         return repository.findAll(spec);
     }

@@ -1,7 +1,13 @@
 package com.caroline.pagamentos.model;
 
+import com.caroline.pagamentos.enums.MetodoPagamento;
+import com.caroline.pagamentos.enums.StatusPagamento;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "pagamentos")
 public class Pagamento {
@@ -14,77 +20,18 @@ public class Pagamento {
 
     private String cpfCnpj;
 
-    private String metodoPagamento;
+    @Enumerated(EnumType.STRING)
+    private MetodoPagamento metodoPagamento;
 
     private String numeroCartao;
 
     private Double valor;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private StatusPagamento status;
 
-    private Boolean ativo = true;
+    private boolean ativo = true;
 
     public Pagamento() {}
 
-    // GETTERS E SETTERS
-
-    public Long getId() {
-        return id;
-    }
-
-    public Integer getCodigoDebito() {
-        return codigoDebito;
-    }
-
-    public void setCodigoDebito(Integer codigoDebito) {
-        this.codigoDebito = codigoDebito;
-    }
-
-    public String getCpfCnpj() {
-        return cpfCnpj;
-    }
-
-    public void setCpfCnpj(String cpfCnpj) {
-        this.cpfCnpj = cpfCnpj;
-    }
-
-    public String getMetodoPagamento() {
-        return metodoPagamento;
-    }
-
-    public void setMetodoPagamento(String metodoPagamento) {
-        this.metodoPagamento = metodoPagamento;
-    }
-
-    public String getNumeroCartao() {
-        return numeroCartao;
-    }
-
-    public void setNumeroCartao(String numeroCartao) {
-        this.numeroCartao = numeroCartao;
-    }
-
-    public Double getValor() {
-        return valor;
-    }
-
-    public void setValor(Double valor) {
-        this.valor = valor;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Boolean getAtivo() {
-        return ativo;
-    }
-
-    public void setAtivo(Boolean ativo) {
-        this.ativo = ativo;
-    }
 }

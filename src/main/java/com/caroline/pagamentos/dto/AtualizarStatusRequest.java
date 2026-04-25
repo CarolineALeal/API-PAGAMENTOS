@@ -1,19 +1,13 @@
 package com.caroline.pagamentos.dto;
 
+import com.caroline.pagamentos.enums.StatusPagamento;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class AtualizarStatusRequest {
-    private String status;
-
-    public AtualizarStatusRequest() {}
-
-    public AtualizarStatusRequest(String status) {
-        this.status = status;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    private StatusPagamento status;
 }
